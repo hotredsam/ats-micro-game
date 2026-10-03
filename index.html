@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Tiny Orbit</title>
+<style>body{margin:0;background:#120a1a;color:#fbf8f3;font-family:system-ui}canvas{display:block;margin:2rem auto;background:#1d1028;border-radius:12px}</style>
+<canvas id="c" width="640" height="400"></canvas>
+<p style="text-align:center">Arrow keys steer. Reach the green planet.</p>
+<script src="levels.js"></script>
+<script>
+const c = document.getElementById("c"), g = c.getContext("2d");
+let level = 0, ship, keys = {};
+addEventListener("keydown", (e) => (keys[e.key] = true));
+addEventListener("keyup", (e) => (keys[e.key] = false));
+function load(i) { const L = LEVELS[i]; ship = { x: L.start[0], y: L.start[1], vx: 0, vy: 0 }; }
+function tick() {
+  const L = LEVELS[level];
+  if (keys.ArrowLeft) ship.vx -= 0.1; if (keys.ArrowRight) ship.vx += 0.1;
+  if (keys.ArrowUp) ship.vy -= 0.1; if (keys.ArrowDown) ship.vy += 0.1;
+  ship.x += ship.vx; ship.y += ship.vy;
+  const [gx, gy, gr] = L.goal;
+  if (Math.hypot(ship.x - gx, ship.y - gy) < gr) { level = (level + 1) % LEVELS.length; load(level); }
+  g.clearRect(0, 0, c.width, c.height);
+  g.fillStyle = "#34c38f"; g.beginPath(); g.arc(gx, gy, gr, 0, 7); g.fill();
+  g.fillStyle = "#f2c14e"; g.fillRect(ship.x - 4, ship.y - 4, 8, 8);
+  g.fillText(`Level ${level + 1}`, 10, 16);
+  requestAnimationFrame(tick);
+}
+load(0); tick();
+</script>
+</html>
